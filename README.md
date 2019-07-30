@@ -1,5 +1,5 @@
 # arcus-read-only
 Read only proxy for arcus
 
-Accept all GETs and relay to arcus. `X-ARCUS-DESTINATION-HOST` the destination host
-in the case of sandbox vs production
+Accept only GETs and relay to arcus. `X-ARCUS-SANDBOX` will specify
+if the request is being made to the sandbox or prod environment.
