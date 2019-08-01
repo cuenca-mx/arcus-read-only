@@ -37,7 +37,7 @@ Resources:
       Events:
         Proxy:
           Properties:
-            Method: get
+            Method: get # No se debe agregar otro metodo que no sea GET
             Path: /{ruta_arcus}
           Type: Api
       Handler: app.lambda_handler
