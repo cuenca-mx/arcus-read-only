@@ -21,6 +21,7 @@ def lambda_handler(event, context):
             response = client.get(event['path'])
             return make_response(200, response)
         except Exception as ex:
+            print(f'Error: {ex}')
             return make_response(400, dict(message='Bad Request'))
     else:
         return make_response(405, dict(message='Method Not Allowed'))
