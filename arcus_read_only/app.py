@@ -13,7 +13,7 @@ def make_response(status_code: int, body: dict) -> dict:
 
 def lambda_handler(event, context):
     try:
-        sandbox = event['headers']['X-Arcus-Sandbox'] == 'true'
+        sandbox = event['headers']['X-ARCUS-SANDBOX'] == 'true'
         client = Client(arcus_api_key, arcus_secret_key, sandbox=sandbox)
         response = client.get(event['path'])
         return make_response(200, response)
