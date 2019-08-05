@@ -27,7 +27,7 @@ Outputs:
 Resources:
   ProxyFunction:
     Properties:
-      CodeUri: s3://arcus-read-only.cuenca.io/4acc72b196c505a2008685b4250c6ec1
+      CodeUri: s3://arcus-read-only.cuenca.io/8e6053a505cf06408cf2f13c104d7856
       Environment:
         Variables:
           ARCUS_API_KEY:
@@ -37,7 +37,7 @@ Resources:
       Events:
         Proxy:
           Properties:
-            Method: get # No se debe agregar otro metodo que no sea GET
+            Method: get
             Path: /{ruta_arcus}
           Type: Api
       Handler: app.lambda_handler
