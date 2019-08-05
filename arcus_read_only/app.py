@@ -16,7 +16,10 @@ def lambda_handler(event, context):
         sandbox = event['headers']['X-ARCUS-SANDBOX'] == 'true'
         client = Client(arcus_api_key, arcus_secret_key, sandbox=sandbox)
         path = event['path']
-        if event['queryStringParameters'] and 'page' in event['queryStringParameters']:
+        if (
+            event['queryStringParameters']
+            and 'page' in event['queryStringParameters']
+        ):
             path += f'?page={event["queryStringParameters"]["page"]}'
         response = client.get(path)
         return make_response(200, response)
