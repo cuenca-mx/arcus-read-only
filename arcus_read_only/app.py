@@ -1,7 +1,16 @@
 import json
 import os
 
+import sentry_sdk
+from sentry_sdk import capture_exception
+from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
+
 from arcus.client import Client
+
+sentry_sdk.init(
+    dsn=os.environ['SENTRY_DSN'],
+    integrations=[AwsLambdaIntegration()]
+)
 
 arcus_api_key = os.environ['ARCUS_API_KEY']
 arcus_secret_key = os.environ['ARCUS_SECRET_KEY']
@@ -24,4 +33,5 @@ def lambda_handler(event, context):
         response = client.get(path)
         return make_response(200, response)
     except Exception as ex:
+        capture_exception(ex)
         return make_response(400, dict(message='Bad Request'))
