@@ -21,6 +21,8 @@ Resources:
         Variables:
           ARCUS_API_KEY: !Ref ARCUS_API_KEY
           ARCUS_SECRET_KEY: !Ref ARCUS_SECRET_KEY
+          TOPUP_API_KEY: !Ref TOPUP_API_KEY
+          TOPUP_SECRET_KEY: !Ref TOPUP_SECRET_KEY
           SENTRY_DSN: !Ref SENTRY_DSN
       Events:
         Proxy:

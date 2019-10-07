@@ -1,4 +1,4 @@
-arcus>=0.2.8,<0.2.9
+arcus>=1.2.0,<1.2.1
 python-dotenv>=0.10.3,<0.10.4
 requests
 sentry-sdk>=0.10.2,<0.10.3

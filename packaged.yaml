@@ -27,7 +27,7 @@ Outputs:
 Resources:
   ProxyFunction:
     Properties:
-      CodeUri: s3://arcus-read-only.cuenca.io/4e3b5c55235924166048eec48627520e
+      CodeUri: s3://arcus-read-only.cuenca.io/87416ffbd36e297ccb4c78ed52d83d53
       Environment:
         Variables:
           ARCUS_API_KEY:
@@ -36,6 +36,10 @@ Resources:
             Ref: ARCUS_SECRET_KEY
           SENTRY_DSN:
             Ref: SENTRY_DSN
+          TOPUP_API_KEY:
+            Ref: TOPUP_API_KEY
+          TOPUP_SECRET_KEY:
+            Ref: TOPUP_SECRET_KEY
       Events:
         Proxy:
           Properties:
