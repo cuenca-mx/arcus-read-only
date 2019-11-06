@@ -39,7 +39,9 @@ def lambda_handler(event, context):
         ):
             path += f'?page={event["queryStringParameters"]["page"]}'
         if path == '/account':
-            response = client.accounts
+            primary = dict(primary=client.get('/account'))
+            topup = dict(topup=client.get('/account', topup=True))
+            response = {**primary, **topup}
         else:
             response = client.get(path)
         return make_response(200, response)
