@@ -14,6 +14,8 @@ sentry_sdk.init(
 
 arcus_api_key = os.environ['ARCUS_API_KEY']
 arcus_secret_key = os.environ['ARCUS_SECRET_KEY']
+topup_api_key = os.environ['TOPUP_API_KEY']
+topup_secret_key = os.environ['TOPUP_SECRET_KEY']
 
 
 def make_response(status_code: int, body: dict) -> dict:
@@ -23,14 +25,25 @@ def make_response(status_code: int, body: dict) -> dict:
 def lambda_handler(event, context):
     try:
         sandbox = event['headers']['X-ARCUS-SANDBOX'] == 'true'
-        client = Client(arcus_api_key, arcus_secret_key, sandbox=sandbox)
+        client = Client(
+            arcus_api_key,
+            arcus_secret_key,
+            topup_api_key,
+            topup_secret_key,
+            sandbox=sandbox
+        )
         path = event['path']
         if (
             event['queryStringParameters']
             and 'page' in event['queryStringParameters']
         ):
             path += f'?page={event["queryStringParameters"]["page"]}'
-        response = client.get(path)
+        if path == '/account':
+            response = client.accounts
+            response['primary'] = vars(response['primary'])
+            response['topup'] = vars(response['topup'])
+        else:
+            response = client.get(path)
         return make_response(200, response)
     except Exception as ex:
         capture_exception(ex)
