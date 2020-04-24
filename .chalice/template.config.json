@@ -6,7 +6,7 @@
         "ARCUS_SECRET_KEY": "",
         "TOPUP_API_KEY": "",
         "TOPUP_SECRET_KEY": "",
-        "SENTRY_DSN": ""
+        "SENTRY_DSN": "http://test.test"
     },
     "stages": {
       "production": {

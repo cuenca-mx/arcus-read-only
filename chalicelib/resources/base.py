@@ -1,3 +1,3 @@
 from chalice import Blueprint
 
-app = Blueprint(__name__)
+app: Blueprint = Blueprint(__name__)
