@@ -107,3 +107,8 @@ venv.bak/
 
 # config.json
 .chalice/config.json
+
+.chalice/deployments/
+.chalice/deployed/
+.chalice/venv/
+venv
