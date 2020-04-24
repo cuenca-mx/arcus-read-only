@@ -1,57 +1,55 @@
-define USAGE
-Super awesome hand-crafted build system ⚙️
+SHELL := bash
+PATH := ./venv/bin:${PATH}
+PYTHON = python3.7
+PROJECT = arcus-read-only
+isort = isort -rc -ac chalicelib tests app.py
+black = black -S -l 79 --target-version py37 chalicelib tests app.py
 
-Commands:
-	init     		Install Python dependencies with pipenv
-	test     		Run linters, test db migrations and tests.
-	serve    		Run app in dev environment (localhost:3000).
-	invoke   		Invoke function with event.json as an input
-	new-bucket MY_BUCKET    Create S3 bucket
-	package MY_BUCKET   	Package Lambda function and upload to S3
-	deploy MY_BUCKET   	Deploy SAM template as a CloudFormation stack
-endef
+all: test
 
-export USAGE
+default: install
 
-PIPENV := pipenv
+venv:
+	$(PYTHON) -m venv --prompt $(PROJECT) venv
+	pip install -qU pip
 
-help:
-	@echo "$$USAGE"
+install:
+	pip install -qU -r requirements.txt
 
-install-pipenv:
-	pip3 install pipenv --user
+install-dev: install
+	pip install -q -r requirements-dev.txt
 
+clean-pyc:
+	find . -name '*.pyc' -exec rm -f {} +
+	find . -name '*.pyo' -exec rm -f {} +
+	find . -name '*~' -exec rm -f {} +
 
-check-pipenv:
-	$(foreach bin,$(PIPENV),\
-    	$(if $(shell command -v $(bin) 2> /dev/null),$(info Found `$(bin)`),$(error Install `$(bin)` or add in PATH)))
+test: clean-pyc lint
+	pytest --cov-report term-missing tests/ --cov=. --cov-config=.coveragerc
 
-init: install-pipenv check-pipenv
-	pipenv install pytest pytest-mock
-	pipenv install -r */requirements.txt
+format:
+	$(isort)
+	$(black)
 
-test: check-pipenv
-	pipenv run python -m pytest tests/ -v
+lint:
+	$(isort) --check-only
+	$(black) --check
+	flake8 chalicelib tests app.py
+	mypy chalicelib tests app.py
 
-build:
-	sam build
-
-serve: build
-	sam local start-api -p 3001
-
-invoke: build
-	sam local invoke ProxyFunction --event event.json
-
-new-bucket:
-	aws s3 mb s3://$(filter-out $@,$(MAKECMDGOALS))
-
-package: build
-	sam package \
-    --output-template-file packaged.yaml \
-    --s3-bucket $(filter-out $@,$(MAKECMDGOALS))
+serve:
+	chalice local
 
 deploy:
-	sam deploy \
-    --template-file packaged.yaml \
-    --stack-name arcus-read-only \
-    --capabilities CAPABILITY_IAM
+	chalice deploy --stage development --profile development
+
+deploy-prod:
+	chalice deploy --stage production --profile production
+
+destroy:
+	chalice delete --stage development --profile development
+
+destroy-prod:
+	chalice delete --stage production --profile production
+
+.PHONY: install install-dev lint clean-pyc test

@@ -2,14 +2,14 @@ import json
 import os
 
 import sentry_sdk
+from arcus.client import Client
 from sentry_sdk import capture_exception
 from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
 
-from arcus.client import Client
+from .base import app
 
 sentry_sdk.init(
-    dsn=os.environ['SENTRY_DSN'],
-    integrations=[AwsLambdaIntegration()]
+    dsn=os.environ['SENTRY_DSN'], integrations=[AwsLambdaIntegration()]
 )
 
 arcus_api_key = os.environ['ARCUS_API_KEY']
@@ -22,29 +22,31 @@ def make_response(status_code: int, body: dict) -> dict:
     return {'statusCode': status_code, 'body': json.dumps(body)}
 
 
-def lambda_handler(event, context):
+@app.route('/{event}', methods=['GET'])
+def lambda_handler(event):
+    request = app.current_request
+
     try:
-        sandbox = event['headers']['X-ARCUS-SANDBOX'] == 'true'
+        sandbox = request.headers['X-ARCUS-SANDBOX'] == 'true'
         client = Client(
             arcus_api_key,
             arcus_secret_key,
             topup_api_key,
             topup_secret_key,
-            sandbox=sandbox
+            sandbox=sandbox,
         )
-        path = event['path']
-        if (
-            event['queryStringParameters']
-            and 'page' in event['queryStringParameters']
-        ):
-            path += f'?page={event["queryStringParameters"]["page"]}'
-        if path == '/account':
+        path = event
+        if request.query_params and 'page' in request.query_params:
+            path += f'?page={request.query_params["page"]}'
+        if path == 'account':
             response = client.accounts
             response['primary'] = vars(response['primary'])
             response['topup'] = vars(response['topup'])
         else:
-            response = client.get(path)
+            response = client.get(f'/{path}')
         return make_response(200, response)
     except Exception as ex:
-        capture_exception(ex)
-        return make_response(400, dict(message='Bad Request'))
+        # capture_exception(ex)
+        return make_response(
+            400, dict(message='Bad Request', exception=str(ex))
+        )
