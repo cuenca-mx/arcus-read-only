@@ -38,7 +38,7 @@ def lambda_handler(event: str) -> dict:
             response['topup'] = vars(response['topup'])
         else:
             response = client.get(f'/{path}')
-        return make_response(200, response)
+        return response
     except InvalidAuth:
         return make_response(401, dict(message='Invalid Authentication Token'))
     except Exception as ex:
