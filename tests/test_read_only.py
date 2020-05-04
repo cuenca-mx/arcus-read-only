@@ -2,6 +2,7 @@ import json
 from unittest import mock
 
 import pytest
+from arcus.exc import InvalidAuth
 from pytest_chalice.handlers import RequestHandler
 
 
@@ -32,11 +33,8 @@ def test_read_only_accounts(client: RequestHandler) -> None:
         response = client.get('/account', headers=headers)
 
         assert response.status_code == 200
-        assert response.json["statusCode"] == 200
-        assert "body" in response.json
-        accounts_response: dict = json.loads(response.json["body"])
-        assert accounts_response["primary"] is not None
-        assert accounts_response["topup"] is not None
+        assert response.json["primary"] is not None
+        assert response.json["topup"] is not None
 
 
 def test_with_parameters(client: RequestHandler) -> None:
@@ -49,19 +47,14 @@ def test_with_parameters(client: RequestHandler) -> None:
         response = client.get('/test?page=1', headers=headers)
 
         assert response.status_code == 200
-        assert response.json["statusCode"] == 200
-        assert "body" in response.json
-        success_resp: dict = json.loads(response.json["body"])
-        assert success_resp["resp"] == "Success!!!"
+        assert response.json["resp"] == "Success!!!"
 
 
 def test_catch_exception(client: RequestHandler) -> None:
     with mock.patch(
         'chalicelib.resources.arcus_read_only.Client'
     ) as ClientTesting:
-        ClientTesting.return_value.get.return_value.raiseError.side_effect = (
-            Exception()
-        )
+        ClientTesting.return_value.get.side_effect = Exception()
 
         headers: dict = {'X-ARCUS-SANDBOX': 'true'}
         response = client.get('/test?page=1', headers=headers)
@@ -71,3 +64,19 @@ def test_catch_exception(client: RequestHandler) -> None:
         assert "body" in response.json
         resp: dict = json.loads(response.json["body"])
         assert resp["message"] == "Bad Request"
+
+
+def test_catch_exception_auth(client: RequestHandler) -> None:
+    with mock.patch(
+        'chalicelib.resources.arcus_read_only.Client'
+    ) as ClientTesting:
+        ClientTesting.return_value.get.side_effect = InvalidAuth()
+
+        headers: dict = {'X-ARCUS-SANDBOX': 'true'}
+        response = client.get('/test?page=1', headers=headers)
+
+        assert response.status_code == 200
+        assert response.json["statusCode"] == 401
+        assert "body" in response.json
+        resp: dict = json.loads(response.json["body"])
+        assert resp["message"] == "Invalid Authentication Token"
