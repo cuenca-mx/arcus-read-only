@@ -104,3 +104,11 @@ venv.bak/
 .mypy_cache/
 
 .idea
+
+# config.json
+.chalice/config.json
+
+.chalice/deployments/
+.chalice/deployed/
+.chalice/venv/
+venv

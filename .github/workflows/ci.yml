@@ -1,0 +1,28 @@
+name: CI
+
+on: [push]
+
+jobs:
+  test:
+
+    env:
+      COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      USERNAME: ${{ secrets.USERNAME }}
+      PASSWORD: ${{ secrets.PASSWORD }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        make install-dev
+        cp .chalice/template.config.json .chalice/config.json
+    - name: Run tests
+      run: |
+        make test
+        coveralls
