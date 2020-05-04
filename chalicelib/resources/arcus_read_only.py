@@ -2,6 +2,7 @@ import json
 import os
 
 from arcus.client import Client
+from arcus.exc import InvalidAuth
 
 from .base import app
 
@@ -38,6 +39,8 @@ def lambda_handler(event: str) -> dict:
         else:
             response = client.get(f'/{path}')
         return make_response(200, response)
+    except InvalidAuth:
+        return make_response(401, dict(message='Invalid Authentication Token'))
     except Exception as ex:
         return make_response(
             400, dict(message='Bad Request', exception=str(ex))
