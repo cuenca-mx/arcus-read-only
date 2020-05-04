@@ -20,7 +20,6 @@ jobs:
         python-version: 3.7
     - name: Install dependencies
       run: |
-        pip config set global.extra-index-url https://$USERNAME:$PASSWORD@pypi.cuenca.io:8081
         make install-dev
         cp .chalice/template.config.json .chalice/config.json
     - name: Run tests
