@@ -3,6 +3,7 @@ import os
 
 from arcus.client import Client
 from arcus.exc import InvalidAuth
+from chalice import Response
 
 from .base import app
 
@@ -10,10 +11,6 @@ arcus_api_key: str = os.environ['ARCUS_API_KEY']
 arcus_secret_key: str = os.environ['ARCUS_SECRET_KEY']
 topup_api_key: str = os.environ['TOPUP_API_KEY']
 topup_secret_key: str = os.environ['TOPUP_SECRET_KEY']
-
-
-def make_response(status_code: int, body: dict) -> dict:
-    return {'statusCode': status_code, 'body': json.dumps(body)}
 
 
 @app.route('/{event}', methods=['GET'])
@@ -38,10 +35,13 @@ def lambda_handler(event: str) -> dict:
             response['topup'] = vars(response['topup'])
         else:
             response = client.get(f'/{path}')
-        return response
+        return Response(body=response, status_code=200,)
     except InvalidAuth:
-        return make_response(401, dict(message='Invalid Authentication Token'))
+        return Response(
+            body=dict(message='Invalid Authentication Token'), status_code=401,
+        )
     except Exception as ex:
-        return make_response(
-            400, dict(message='Bad Request', exception=str(ex))
+        return Response(
+            body=dict(message='Bad Request', exception=str(ex)),
+            status_code=400,
         )

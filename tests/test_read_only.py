@@ -59,11 +59,8 @@ def test_catch_exception(client: RequestHandler) -> None:
         headers: dict = {'X-ARCUS-SANDBOX': 'true'}
         response = client.get('/test?page=1', headers=headers)
 
-        assert response.status_code == 200
-        assert response.json["statusCode"] == 400
-        assert "body" in response.json
-        resp: dict = json.loads(response.json["body"])
-        assert resp["message"] == "Bad Request"
+        assert response.status_code == 400
+        assert response.json["message"] == "Bad Request"
 
 
 def test_catch_exception_auth(client: RequestHandler) -> None:
@@ -75,8 +72,5 @@ def test_catch_exception_auth(client: RequestHandler) -> None:
         headers: dict = {'X-ARCUS-SANDBOX': 'true'}
         response = client.get('/test?page=1', headers=headers)
 
-        assert response.status_code == 200
-        assert response.json["statusCode"] == 401
-        assert "body" in response.json
-        resp: dict = json.loads(response.json["body"])
-        assert resp["message"] == "Invalid Authentication Token"
+        assert response.status_code == 401
+        assert response.json["message"] == "Invalid Authentication Token"
